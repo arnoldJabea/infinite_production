@@ -20,4 +20,11 @@ router.group(() => {
   router.put('/profile', '#controllers/profiles_controller.update')
 }).middleware([middleware.auth()])
 
+router.group(() => {
+  router.get('/projects/:projectId/events', '#controllers/events_controller.index')
+  router.post('/projects/:projectId/events', '#controllers/events_controller.store')
+  router.delete('/events/:id', '#controllers/events_controller.destroy')
+}).middleware([middleware.auth()])
+
+
       
