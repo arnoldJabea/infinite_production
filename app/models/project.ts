@@ -14,10 +14,10 @@ export default class Project extends BaseModel {
   declare description: string
 
   @column.dateTime()
-  declare startDate: DateTime | null
+  declare startDate: DateTime
 
   @column.dateTime()
-  declare endDate: DateTime | null
+  declare endDate: DateTime
 
   @column()
   declare userId: number
