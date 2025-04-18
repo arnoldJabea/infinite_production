@@ -45,6 +45,26 @@ export default class ProjectsController {
     return project
   }
 
-  async update(_ctx: HttpContext) { }
+  async update({ params, auth, request, response }: HttpContext) {
+    const project = await Project.find(params.id)
+
+    if (!project || project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: "Tu ne peux pas modifier ce projet." })
+    }
+
+    const data = await request.validateUsing(projectValidator)
+
+    project.merge({
+      ...data,
+      startDate: data.startDate ? DateTime.fromJSDate(data.startDate) : undefined,
+      endDate: data.endDate ? DateTime.fromJSDate(data.endDate) : undefined,
+    })
+
+    await project.save()
+
+    return project
+  }
+
+
   async destroy(_ctx: HttpContext) { }
 }
