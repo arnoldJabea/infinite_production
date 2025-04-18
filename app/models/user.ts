@@ -7,7 +7,9 @@ import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import { hasMany } from '@adonisjs/lucid/orm'
 import Project from '#models/project'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
-
+import { hasOne } from '@adonisjs/lucid/orm'
+import Profile from '#models/profile'
+import type { HasOne } from '@adonisjs/lucid/types/relations'
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email'],
   passwordColumnName: 'password',
@@ -30,6 +32,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+
+  @hasOne(() => Profile)
+  declare profile: HasOne<typeof Profile>
 
   @hasMany(() => Project)
   declare projects: HasMany<typeof Project>
