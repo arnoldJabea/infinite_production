@@ -66,5 +66,15 @@ export default class ProjectsController {
   }
 
 
-  async destroy(_ctx: HttpContext) { }
+  async destroy({ params, auth, response }: HttpContext) {
+    const project = await Project.find(params.id)
+  
+    if (!project || project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: "Tu ne peux pas supprimer ce projet." })
+    }
+  
+    await project.delete()
+    return response.ok({ message: "Projet supprimé avec succès." })
+  }
+  
 }
