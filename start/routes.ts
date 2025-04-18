@@ -26,5 +26,12 @@ router.group(() => {
   router.delete('/events/:id', '#controllers/events_controller.destroy')
 }).middleware([middleware.auth()])
 
+router.group(() => {
+  router.get('/projects/:projectId/media', '#controllers/media_controller.index')
+  router.post('/projects/:projectId/media', '#controllers/media_controller.store')
+  router.delete('/media/:id', '#controllers/media_controller.destroy')
+}).middleware([middleware.auth()])
+
+
 
       
