@@ -39,8 +39,18 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @hasMany(() => Project)
   declare projects: HasMany<typeof Project>
 
+  @manyToMany(() => Project, {
+    pivotTable: 'users_projects',
+    pivotColumns: ['role'],
+  })
+  
+
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
+}
+
+function manyToMany(_arg0: () => typeof Project, _arg1: { pivotTable: string; pivotColumns: string[] }): (target: User, propertyKey: "updatedAt") => void {
+  throw new Error('Function not implemented.')
 }

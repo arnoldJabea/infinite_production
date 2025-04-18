@@ -1,7 +1,7 @@
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, manyToMany } from '@adonisjs/lucid/orm'
 import User from '#models/user'
 import { DateTime } from 'luxon'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { hasMany } from '@adonisjs/lucid/orm'
 import Event from '#models/event'
 import Media from './media.js'
@@ -38,6 +38,13 @@ export default class Project extends BaseModel {
 
   @hasMany(() => Event)
   declare events: HasMany<typeof Event>
+
+  @manyToMany(() => User, {
+    pivotTable: 'users_projects',
+    pivotColumns: ['role'],
+  })
+  declare collaborators: ManyToMany<typeof User>
+  
 
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
