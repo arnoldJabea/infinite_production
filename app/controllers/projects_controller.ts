@@ -4,7 +4,19 @@ import { projectValidator } from '#validators/project'
 import { DateTime } from 'luxon'
 
 export default class ProjectsController {
-  async index(_ctx: HttpContext) {}
+  
+
+async index({ auth }: HttpContext) {
+  const user = auth.user!
+
+  const projects = await Project
+    .query()
+    .where('userId', user.id)
+    .orderBy('createdAt', 'desc')
+
+  return projects
+}
+
 
   async store({ request, auth, response }: HttpContext) {
     const payload = await request.validateUsing(projectValidator)
@@ -13,8 +25,8 @@ export default class ProjectsController {
       title: payload.title,
       description: payload.description,
       userId: auth.user!.id,
-      startDate: payload.start_date ? DateTime.fromJSDate(payload.start_date) : undefined,
-      endDate: payload.end_date ? DateTime.fromJSDate(payload.end_date) : undefined,
+      startDate: payload.startDate ? DateTime.fromJSDate(payload.startDate) : undefined,
+      endDate: payload.endDate ? DateTime.fromJSDate(payload.endDate) : undefined,
     })
     
 
