@@ -1,7 +1,9 @@
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import User from '#models/user'
 import { DateTime } from 'luxon'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { hasMany } from '@adonisjs/lucid/orm'
+import Event from '#models/event'
 
 export default class Project extends BaseModel {
   @column({ isPrimary: true })
@@ -27,6 +29,11 @@ export default class Project extends BaseModel {
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+
+
+  @hasMany(() => Event)
+  declare events: HasMany<typeof Event>
+
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
