@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { hasMany } from '@adonisjs/lucid/orm'
 import Event from '#models/event'
+import Media from './media.js'
 
 export default class Project extends BaseModel {
   @column({ isPrimary: true })
@@ -29,6 +30,10 @@ export default class Project extends BaseModel {
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+
+  @hasMany(() => Media)
+  declare media: HasMany<typeof Media>
+
 
 
   @hasMany(() => Event)
