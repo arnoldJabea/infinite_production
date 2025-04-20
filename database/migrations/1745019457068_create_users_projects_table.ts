@@ -22,6 +22,9 @@ export default class UsersProjects extends BaseSchema {
         .onDelete('CASCADE')
 
       table.enum('role', ['artist', 'provider', 'manager']).notNullable()
+      
+      table.unique(['user_id', 'project_id'])
+
 
       table.timestamps(true)
     })

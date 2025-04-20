@@ -4,19 +4,17 @@ import { projectValidator } from '#validators/project'
 import { DateTime } from 'luxon'
 
 export default class ProjectsController {
-
-
   async index({ auth }: HttpContext) {
-    const user = auth.user!
-
     const projects = await Project
       .query()
-      .where('userId', user.id)
+      .where('userId', auth.user!.id)
       .orderBy('createdAt', 'desc')
+
+      .preload('events')
+      .preload('media')
 
     return projects
   }
-
 
   async store({ request, auth, response }: HttpContext) {
     const payload = await request.validateUsing(projectValidator)
@@ -29,17 +27,18 @@ export default class ProjectsController {
       endDate: payload.endDate ? DateTime.fromJSDate(payload.endDate) : undefined,
     })
 
-
     return response.created({ project })
   }
-
-
 
   async show({ params, auth, response }: HttpContext) {
     const project = await Project.find(params.id)
 
-    if (!project || project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: "Accès refusé à ce projet." })
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
+    }
+
+    if (project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: 'Accès refusé à ce projet.' })
     }
 
     return project
@@ -48,8 +47,12 @@ export default class ProjectsController {
   async update({ params, auth, request, response }: HttpContext) {
     const project = await Project.find(params.id)
 
-    if (!project || project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: "Tu ne peux pas modifier ce projet." })
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
+    }
+
+    if (project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: 'Tu ne peux pas modifier ce projet.' })
     }
 
     const data = await request.validateUsing(projectValidator)
@@ -65,16 +68,19 @@ export default class ProjectsController {
     return project
   }
 
-
   async destroy({ params, auth, response }: HttpContext) {
     const project = await Project.find(params.id)
-  
-    if (!project || project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: "Tu ne peux pas supprimer ce projet." })
+
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
     }
-  
+
+    if (project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: 'Tu ne peux pas supprimer ce projet.' })
+    }
+
     await project.delete()
-    return response.ok({ message: "Projet supprimé avec succès." })
+
+    return response.ok({ message: 'Projet supprimé avec succès.' })
   }
-  
 }

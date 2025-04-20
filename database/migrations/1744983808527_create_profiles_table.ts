@@ -17,7 +17,8 @@ export default class Profiles extends BaseSchema {
 
       table.text('bio').nullable()
       table.string('website').nullable()
-      table.json('socials').nullable()
+      table.jsonb('socials').notNullable().defaultTo('{}')
+
 
       table.timestamps(true)
     })

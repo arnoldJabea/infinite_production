@@ -7,24 +7,32 @@ export default class MediaController {
   async index({ params, auth, response }: HttpContext) {
     const project = await Project.find(params.projectId)
 
-    if (!project || project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: 'Accès interdit au projet.' })
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
     }
 
-    const media = await project.related('media').query().orderBy('created_at', 'desc')
+    if (project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: 'Accès interdit à ce projet.' })
+    }
+
+    const media = await project.related('media').query().orderBy('createdAt', 'desc')
     return media
   }
 
   async store({ params, request, auth, response }: HttpContext) {
     const project = await Project.find(params.projectId)
 
-    if (!project || project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: 'Accès interdit au projet.' })
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
+    }
+
+    if (project.userId !== auth.user!.id) {
+      return response.unauthorized({ message: 'Accès interdit à ce projet.' })
     }
 
     const payload = await request.validateUsing(mediaValidator)
-
     const media = await project.related('media').create(payload)
+
     return response.created({ media })
   }
 
@@ -42,6 +50,6 @@ export default class MediaController {
     }
 
     await media.delete()
-    return response.ok({ message: 'Média supprimé.' })
+    return response.ok({ message: 'Média supprimé avec succès.' })
   }
 }

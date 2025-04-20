@@ -13,10 +13,13 @@ export default class Event extends BaseModel {
   @column()
   declare title: string
 
-  @column()
-  declare location?: string
+  @column({ consume: (v) => v ?? null })
+  declare location: string | null
 
-  @column.date()
+  @column.date({
+    prepare: (value: DateTime) => value.toISODate(),
+    serialize: (value: DateTime) => value.toISODate(),
+  })
   declare date: DateTime
 
   @belongsTo(() => Project)

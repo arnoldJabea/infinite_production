@@ -8,7 +8,11 @@ export default class EventsController {
   async index({ params, auth, response }: HttpContext) {
     const project = await Project.find(params.projectId)
 
-    if (!project || project.userId !== auth.user!.id) {
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
+    }
+
+    if (project.userId !== auth.user!.id) {
       return response.unauthorized({ message: 'Accès interdit à ce projet.' })
     }
 
@@ -19,7 +23,11 @@ export default class EventsController {
   async store({ params, request, auth, response }: HttpContext) {
     const project = await Project.find(params.projectId)
 
-    if (!project || project.userId !== auth.user!.id) {
+    if (!project) {
+      return response.notFound({ message: 'Projet introuvable.' })
+    }
+
+    if (project.userId !== auth.user!.id) {
       return response.unauthorized({ message: 'Accès interdit à ce projet.' })
     }
 
@@ -27,10 +35,10 @@ export default class EventsController {
 
     const event = await project.related('events').create({
       ...payload,
-      date: DateTime.fromJSDate(new Date(payload.date))
+      date: DateTime.fromJSDate(new Date(payload.date))  // Format Luxon
     })
 
-    return response.created({ event }) 
+    return response.created({ event })
   }
 
   async destroy({ params, auth, response }: HttpContext) {
@@ -46,6 +54,6 @@ export default class EventsController {
     }
 
     await event.delete()
-    return response.ok({ message: 'Événement supprimé.' }) 
+    return response.ok({ message: 'Événement supprimé avec succès.' })
   }
 }

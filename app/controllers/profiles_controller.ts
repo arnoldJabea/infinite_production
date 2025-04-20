@@ -16,9 +16,10 @@ export default class ProfilesController {
     return response.created({ profile })
   }
 
-  async show({ auth }: HttpContext) {
+  async show({ auth, response }: HttpContext) {
     const profile = await auth.user!.related('profile').query().first()
-    return profile ?? { message: 'Aucun profil trouvé.' }
+    if (!profile) return response.notFound({ message: 'Profil non trouvé.' })
+
   }
 
   async update({ auth, request, response }: HttpContext) {

@@ -57,6 +57,7 @@
     "@adonisjs/lucid": "^21.6.1",
     "@adonisjs/validator": "^13.0.2",
     "@vinejs/vine": "^3.0.0",
+    "adonisjs-swagger": "^1.4.2",
     "luxon": "^3.6.1",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2"
