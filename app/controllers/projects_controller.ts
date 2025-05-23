@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Project from '#models/project'
 import { projectValidator } from '#validators/project'
 import { DateTime } from 'luxon'
+import ProjectAccessService from '#services/project_access_service'
 
 export default class ProjectsController {
   async index({ auth }: HttpContext) {
@@ -9,7 +10,6 @@ export default class ProjectsController {
       .query()
       .where('userId', auth.user!.id)
       .orderBy('createdAt', 'desc')
-
       .preload('events')
       .preload('media')
 
@@ -18,6 +18,7 @@ export default class ProjectsController {
 
   async store({ request, auth, response }: HttpContext) {
     const payload = await request.validateUsing(projectValidator)
+
     if (
       payload.startDate &&
       payload.endDate &&
@@ -48,74 +49,79 @@ export default class ProjectsController {
   }
 
   async show({ params, auth, response }: HttpContext) {
-    const project = await Project.find(params.id)
-
-    if (!project) {
-      return response.notFound({ message: 'Projet introuvable.' })
+    try {
+      const project = await ProjectAccessService.ensureOwner(auth.user!, params.id)
+      if (!project) {
+        return response.notFound({ message: 'Projet introuvable.' })
+      }
+      return project
+    } catch (error) {
+      if (error.message === 'FORBIDDEN') {
+        return response.forbidden({ message: 'Tu n’as pas accès à ce projet.' })
+      }
+      throw error
     }
-
-    if (project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: 'Accès refusé à ce projet.' })
-    }
-
-    return project
   }
 
   async update({ params, auth, request, response }: HttpContext) {
-    const project = await Project.find(params.id)
+    try {
+      const project = await ProjectAccessService.ensureOwner(auth.user!, params.id)
+      if (!project) {
+        return response.notFound({ message: 'Projet introuvable.' })
+      }
 
-    if (!project) {
-      return response.notFound({ message: 'Projet introuvable.' })
-    }
+      const data = await request.validateUsing(projectValidator)
 
-    if (project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: 'Tu ne peux pas modifier ce projet.' })
-    }
+      if (
+        data.startDate &&
+        data.endDate &&
+        data.startDate > data.endDate
+      ) {
+        return response.badRequest({
+          message: 'La date de fin ne peut pas être antérieure à la date de début.',
+        })
+      }
 
-    const data = await request.validateUsing(projectValidator)
-    if (
-      data.startDate &&
-      data.endDate &&
-      data.startDate > data.endDate
-    ) {
-      return response.badRequest({
-        message: 'La date de fin ne peut pas être antérieure à la date de début.',
+      project.merge({
+        ...data,
+        startDate: data.startDate
+          ? (typeof data.startDate === 'string'
+            ? DateTime.fromISO(data.startDate)
+            : DateTime.fromJSDate(data.startDate))
+          : undefined,
+        endDate: data.endDate
+          ? (typeof data.endDate === 'string'
+            ? DateTime.fromISO(data.endDate)
+            : DateTime.fromJSDate(data.endDate))
+          : undefined,
       })
+
+      await project.save()
+
+      return project
+    } catch (error) {
+      if (error.message === 'FORBIDDEN') {
+        return response.forbidden({ message: 'Tu n’as pas le droit de modifier ce projet.' })
+      }
+      throw error
     }
-
-    project.merge({
-      ...data,
-
-      startDate: data.startDate
-        ? (typeof data.startDate === 'string'
-          ? DateTime.fromISO(data.startDate)
-          : DateTime.fromJSDate(data.startDate))
-        : undefined,
-      endDate: data.endDate
-        ? (typeof data.endDate === 'string'
-          ? DateTime.fromISO(data.endDate)
-          : DateTime.fromJSDate(data.endDate))
-        : undefined,
-    })
-
-    await project.save()
-
-    return project
   }
 
   async destroy({ params, auth, response }: HttpContext) {
-    const project = await Project.find(params.id)
+    try {
+      const project = await ProjectAccessService.ensureOwner(auth.user!, params.id)
+      if (!project) {
+        return response.notFound({ message: 'Projet introuvable.' })
+      }
 
-    if (!project) {
-      return response.notFound({ message: 'Projet introuvable.' })
+      await project.delete()
+
+      return response.ok({ message: 'Projet supprimé avec succès.' })
+    } catch (error) {
+      if (error.message === 'FORBIDDEN') {
+        return response.forbidden({ message: 'Tu n’as pas le droit de supprimer ce projet.' })
+      }
+      throw error
     }
-
-    if (project.userId !== auth.user!.id) {
-      return response.unauthorized({ message: 'Tu ne peux pas supprimer ce projet.' })
-    }
-
-    await project.delete()
-
-    return response.ok({ message: 'Projet supprimé avec succès.' })
   }
 }
