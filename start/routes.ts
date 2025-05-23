@@ -24,6 +24,8 @@ router.group(() => {
   router.post('/profile', '#controllers/profiles_controller.store')
   router.get('/profile', '#controllers/profiles_controller.show')
   router.put('/profile', '#controllers/profiles_controller.update')
+  router.post('/profile/presskit', '#controllers/profiles_controller.uploadPressKit')
+  router.get('/profile/presskit-url', '#controllers/profiles_controller.pressKitUrl')
 }).middleware([middleware.auth()])
 
 // 🔐 Projects CRUD
@@ -51,3 +53,8 @@ router.group(() => {
   router.post('/projects/:projectId/collaborators', '#controllers/collaborators_controller.store')
   router.delete('/projects/:projectId/collaborators/:userId', '#controllers/collaborators_controller.destroy')
 }).middleware([middleware.auth()])
+// 🔐 Admin dashboard
+router.group(() => {
+  router.get('/admin/stats', '#controllers/admin_dashboards_controller.stats')
+}).middleware([middleware.auth()])
+
