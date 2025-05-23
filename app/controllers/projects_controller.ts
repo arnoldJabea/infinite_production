@@ -18,13 +18,30 @@ export default class ProjectsController {
 
   async store({ request, auth, response }: HttpContext) {
     const payload = await request.validateUsing(projectValidator)
+    if (
+      payload.startDate &&
+      payload.endDate &&
+      payload.startDate > payload.endDate
+    ) {
+      return response.badRequest({
+        message: 'La date de fin ne peut pas être antérieure à la date de début.',
+      })
+    }
 
     const project = await Project.create({
       title: payload.title,
       description: payload.description,
       userId: auth.user!.id,
-      startDate: payload.startDate ? DateTime.fromJSDate(payload.startDate) : undefined,
-      endDate: payload.endDate ? DateTime.fromJSDate(payload.endDate) : undefined,
+      startDate: payload.startDate
+        ? (typeof payload.startDate === 'string'
+          ? DateTime.fromISO(payload.startDate)
+          : DateTime.fromJSDate(payload.startDate))
+        : undefined,
+      endDate: payload.endDate
+        ? (typeof payload.endDate === 'string'
+          ? DateTime.fromISO(payload.endDate)
+          : DateTime.fromJSDate(payload.endDate))
+        : undefined,
     })
 
     return response.created({ project })
@@ -56,11 +73,29 @@ export default class ProjectsController {
     }
 
     const data = await request.validateUsing(projectValidator)
+    if (
+      data.startDate &&
+      data.endDate &&
+      data.startDate > data.endDate
+    ) {
+      return response.badRequest({
+        message: 'La date de fin ne peut pas être antérieure à la date de début.',
+      })
+    }
 
     project.merge({
       ...data,
-      startDate: data.startDate ? DateTime.fromJSDate(data.startDate) : undefined,
-      endDate: data.endDate ? DateTime.fromJSDate(data.endDate) : undefined,
+
+      startDate: data.startDate
+        ? (typeof data.startDate === 'string'
+          ? DateTime.fromISO(data.startDate)
+          : DateTime.fromJSDate(data.startDate))
+        : undefined,
+      endDate: data.endDate
+        ? (typeof data.endDate === 'string'
+          ? DateTime.fromISO(data.endDate)
+          : DateTime.fromJSDate(data.endDate))
+        : undefined,
     })
 
     await project.save()
