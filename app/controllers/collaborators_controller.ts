@@ -15,7 +15,8 @@ export default class CollaboratorsController {
       return response.unauthorized({ message: 'Accès interdit.' })
     }
 
-    const collaborators = await project.related('collaborators')
+    const collaborators = await project
+      .related('collaborators')
       .query()
       .pivotColumns(['role'])
 
@@ -40,8 +41,13 @@ export default class CollaboratorsController {
       return response.notFound({ message: 'Utilisateur introuvable.' })
     }
 
-    // Vérifie si déjà collaborateur pour éviter doublon
-    const existing = await project.related('collaborators').query().where('id', userId).first()
+    const existing = await project
+      .related('collaborators')
+      .query()
+      .where('users.id', '=', userId)
+      .from('users')
+      .first()
+
     if (existing) {
       return response.conflict({ message: 'Utilisateur déjà collaborateur.' })
     }

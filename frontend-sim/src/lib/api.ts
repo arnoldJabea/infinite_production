@@ -1,12 +1,18 @@
 import axios from 'axios'
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+const api = axios.create({
+  baseURL: 'http://localhost:3333',
 })
 
-// ➜ Ajout automatique du Bearer si présent
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+export function login(email: string, password: string) {
+  return api.post('/login', { email, password })
+}
+
+export function getMe(token: string) {
+  return api.get('/me', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+export default api;

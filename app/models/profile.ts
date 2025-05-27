@@ -17,7 +17,10 @@ export default class Profile extends BaseModel {
   declare website: string
 
   @column()
-  declare socials: Record<string, string> 
+  declare socials: Record<string, string>
+
+  @column()
+  declare pressKitPath: string | null
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>

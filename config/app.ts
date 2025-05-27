@@ -36,5 +36,7 @@ export const http = defineConfig({
     httpOnly: true,
     secure: app.inProduction,
     sameSite: 'lax',
-  },
+  }
 })
+
+// If you need to configure views, move this to the appropriate config file (e.g., config/view.ts)

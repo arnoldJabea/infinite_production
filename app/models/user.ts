@@ -39,6 +39,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare role: 'artist' | 'provider' | 'admin'
 
+  @column({ columnName: 'reset_token' })
+  declare resetToken: string | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
