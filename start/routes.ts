@@ -79,3 +79,9 @@ router.group(() => {
   middleware.auth(),
   middleware.ensureRole(['admin'])
 ])
+
+router.post('/newsletter', '#controllers/newsletter_controller.subscribe')
+
+// Optionnel : pour admin
+router.get('/admin/newsletters', '#controllers/newsletter_controller.index')
+  .middleware([middleware.auth(), middleware.ensureRole(['admin'])])
