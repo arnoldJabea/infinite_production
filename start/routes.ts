@@ -4,6 +4,7 @@ import { ensureOwnerOrAdminGeneric } from '#middleware/ensure_owner_or_admin_for
 import Project from '#models/project'
 import Media from '#models/media'
 import Event from '#models/event'
+import News from '#models/news'
 
 // 🟢 Public
 router.get('/', async () => {
@@ -37,6 +38,7 @@ router.group(() => {
 
 // 🔐 Projects CRUD
 router.resource('/projects', '#controllers/projects_controller')
+
   .apiOnly()
   .middleware({
     '*': [middleware.auth()],
@@ -85,3 +87,16 @@ router.post('/newsletter', '#controllers/newsletter_controller.subscribe')
 // Optionnel : pour admin
 router.get('/admin/newsletters', '#controllers/newsletter_controller.index')
   .middleware([middleware.auth(), middleware.ensureRole(['admin'])])
+
+router.group(() => {
+  router.get('/news', '#controllers/news_controller.index')
+  router.post('/news', '#controllers/news_controller.store')
+}).middleware([middleware.auth()])
+
+router
+  .put('/news/:id', '#controllers/news_controller.update')
+  .middleware([middleware.auth(), ensureOwnerOrAdminGeneric(News)])
+
+router
+  .delete('/news/:id', '#controllers/news_controller.destroy')
+  .middleware([middleware.auth(), ensureOwnerOrAdminGeneric(News)])
