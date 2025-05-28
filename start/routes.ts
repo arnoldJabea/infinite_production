@@ -115,3 +115,5 @@ router.group(() => {
   router.delete('/featured-tracks/:id', '#controllers/featured_tracks_controller.destroy')
     .middleware([ensureOwnerOrAdminGeneric(FeaturedTrack)])
 }).middleware([middleware.auth()])
+
+router.get('/profiles/search', '#controllers/profiles_controller.search')

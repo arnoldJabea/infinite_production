@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { profileValidator } from '#validators/profile'
 import { cuid } from '@adonisjs/core/helpers'
 import app from '@adonisjs/core/services/app'
+import Profile from '#models/profile'
 
 
 export default class ProfilesController {
@@ -81,6 +82,28 @@ export default class ProfilesController {
     profile.merge(payload)
     await profile.save()
 
-    return profile
+    return response.ok({ message: 'Profil mis à jour.', profile })
+  }
+  public async search({ request, response }: HttpContext) {
+    const query = request.input('query')
+    const profession = request.input('profession')
+    const style = request.input('style')
+
+    const profilesQuery = Profile.query()
+      .preload('user') // si besoin d’infos user
+      .if(query, (qb) => {
+        qb.where('bio', 'ilike', `%${query}%`)
+          .orWhere('website', 'ilike', `%${query}%`)
+      })
+      .if(profession, (qb) => {
+        qb.where('profession', profession)
+      })
+      .if(style, (qb) => {
+        qb.where('style', style)
+      })
+
+    const results = await profilesQuery
+
+    return response.ok({ data: results })
   }
 }

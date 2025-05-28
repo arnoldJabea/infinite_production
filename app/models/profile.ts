@@ -20,6 +20,12 @@ export default class Profile extends BaseModel {
   declare socials: Record<string, string>
 
   @column()
+  declare profession: string
+
+  @column()
+  declare style: string
+
+  @column()
   declare pressKitPath: string | null
 
   @belongsTo(() => User)
