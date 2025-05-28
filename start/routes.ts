@@ -5,6 +5,7 @@ import Project from '#models/project'
 import Media from '#models/media'
 import Event from '#models/event'
 import News from '#models/news'
+import FeaturedTrack from '#models/featured_track'
 
 // 🟢 Public
 router.get('/', async () => {
@@ -100,3 +101,17 @@ router
 router
   .delete('/news/:id', '#controllers/news_controller.destroy')
   .middleware([middleware.auth(), ensureOwnerOrAdminGeneric(News)])
+
+
+
+
+/* 🔐 Morceaux en vedette */
+router.group(() => {
+  router.post('/featured-tracks', '#controllers/featured_tracks_controller.store')
+  router.get('/featured-tracks', '#controllers/featured_tracks_controller.index')
+  router.get('/me/featured-tracks', '#controllers/featured_tracks_controller.mine')
+  router.put('/featured-tracks/:id', '#controllers/featured_tracks_controller.update')
+    .middleware([ensureOwnerOrAdminGeneric(FeaturedTrack)])
+  router.delete('/featured-tracks/:id', '#controllers/featured_tracks_controller.destroy')
+    .middleware([ensureOwnerOrAdminGeneric(FeaturedTrack)])
+}).middleware([middleware.auth()])

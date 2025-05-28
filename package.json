@@ -64,6 +64,7 @@
     "@japa/file-system": "^2.3.2",
     "@vinejs/vine": "^3.0.0",
     "adonisjs-swagger": "^1.4.2",
+    "cloudinary": "^2.6.1",
     "luxon": "^3.6.1",
     "nodemailer": "^7.0.3",
     "pg": "^8.14.1",
