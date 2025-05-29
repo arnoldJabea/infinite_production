@@ -6,6 +6,7 @@ import Media from '#models/media'
 import Event from '#models/event'
 import News from '#models/news'
 import FeaturedTrack from '#models/featured_track'
+import YouTubeVideo from '#models/youtube_video'
 
 // 🟢 Public
 router.get('/', async () => {
@@ -117,3 +118,18 @@ router.group(() => {
 }).middleware([middleware.auth()])
 
 router.get('/profiles/search', '#controllers/profiles_controller.search')
+
+// 🔐 YouTube videos
+router.group(() => {
+  router.post('/youtube-videos', '#controllers/youtube_videos_controller.store')
+  router.get('/youtube-videos', '#controllers/youtube_videos_controller.index')
+  router.put('/youtube-videos/:id', '#controllers/youtube_videos_controller.update').middleware([middleware.auth(), ensureOwnerOrAdminGeneric(YouTubeVideo)])
+  router
+  .delete('/youtube-videos/:id', '#controllers/youtube_videos_controller.destroy')
+  .middleware([middleware.auth(), ensureOwnerOrAdminGeneric(YouTubeVideo)])
+  
+}).middleware([middleware.auth()])
+
+router.get('/youtube', '#controllers/youtube_videos_controller.index')
+
+router.get('/youtube/:id', '#controllers/youtube_videos_controller.show')
