@@ -7,6 +7,7 @@ import Event from '#models/event'
 import News from '#models/news'
 import FeaturedTrack from '#models/featured_track'
 import YouTubeVideo from '#models/youtube_video'
+import Achievement from '#models/achievement'
 
 // 🟢 Public
 router.get('/', async () => {
@@ -39,14 +40,12 @@ router.group(() => {
 }).middleware([middleware.auth()])
 
 // 🔐 Projects CRUD
-router.resource('/projects', '#controllers/projects_controller')
-
+router
+  .resource('/projects', '#controllers/projects_controller')
   .apiOnly()
-  .middleware({
-    '*': [middleware.auth()],
-    update: [ensureOwnerOrAdminGeneric(Project)],
-    destroy: [ensureOwnerOrAdminGeneric(Project)],
-  })
+  .middleware('*', [middleware.auth()])
+  .middleware('update', [ensureOwnerOrAdminGeneric(Project)])
+  .middleware('destroy', [ensureOwnerOrAdminGeneric(Project)])
 
 // 🔐 Events
 router.group(() => {
@@ -133,3 +132,25 @@ router.group(() => {
 router.get('/youtube', '#controllers/youtube_videos_controller.index')
 
 router.get('/youtube/:id', '#controllers/youtube_videos_controller.show')
+
+
+
+router.get('/achievements', '#controllers/achievements_controller.index')
+
+
+router.group(() => {
+  router.post('/achievements', '#controllers/achievements_controller.store')
+  router.get('/me/achievements', '#controllers/achievements_controller.mine')
+  router.put('/achievements/:id', '#controllers/achievements_controller.update')
+    .middleware([ensureOwnerOrAdminGeneric(Achievement)])
+  router.delete('/achievements/:id', '#controllers/achievements_controller.destroy')
+    .middleware([ensureOwnerOrAdminGeneric(Achievement)])
+}).middleware([middleware.auth()])
+
+// Public calendar routes
+router.get('/events', '#controllers/events_controller.listPublic')
+router.get('/profiles/:id/events', '#controllers/events_controller.listByProfile')
+
+router
+  .get('/admin/stats/events-in-range', '#controllers/admin_dashboard_controller.eventsInRange')
+  .middleware([middleware.auth(), middleware.ensureRole(['admin'])])

@@ -1,5 +1,6 @@
-import type { HttpContext } from '@adonisjs/core/http'
+"import type { HttpContext } from '@adonisjs/core/http'
 import YouTubeVideo from '#models/youtube_video'
+import { HttpContext } from '@adonisjs/core/http'
 
 export default class YouTubeVideosController {
   public async store({ request, auth, response }: HttpContext) {

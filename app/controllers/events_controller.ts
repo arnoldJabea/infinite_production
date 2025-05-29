@@ -3,6 +3,8 @@ import Event from '#models/event'
 import Project from '#models/project'
 import { eventValidator } from '#validators/event'
 import { DateTime } from 'luxon'
+import Profile from '#models/profile'
+import { eventFilterValidator } from '#validators/event_filter'
 
 export default class EventsController {
   async index({ params, auth, response }: HttpContext) {
@@ -56,4 +58,39 @@ export default class EventsController {
     await event.delete()
     return response.ok({ message: 'Événement supprimé avec succès.' })
   }
+
+  public async listPublic({ request, response }: HttpContext) {
+    const { from, to } = await request.validateUsing(eventFilterValidator)
+
+    const query = Event.query()
+      .preload('project', (projectQuery) => projectQuery.preload('user'))
+      .orderBy('date', 'asc')
+
+    if (from) query.where('date', '>=', new Date(from))
+    if (to) query.where('date', '<=', new Date(to))
+
+    const events = await query
+    return response.ok({ data: events })
+  }
+
+  public async listByProfile({ params, request, response }: HttpContext) {
+    const { from, to } = await request.validateUsing(eventFilterValidator)
+
+    const profile = await Profile.find(params.id)
+    if (!profile) return response.notFound({ message: 'Profil non trouvé.' })
+
+    const query = Event
+      .query()
+      .whereHas('project', (q) => q.where('user_id', profile.userId))
+      .preload('project')
+      .orderBy('date', 'asc')
+
+    if (from) query.where('date', '>=', new Date(from))
+    if (to) query.where('date', '<=', new Date(to))
+
+    const events = await query
+    return response.ok({ data: events })
+  }
+
+
 }

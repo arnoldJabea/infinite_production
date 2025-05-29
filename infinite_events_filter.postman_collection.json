@@ -1,0 +1,48 @@
+{
+  "info": {
+    "name": "Infinite Events Filters",
+    "_postman_id": "abcd1234-5678-9012-3456-filter-events",
+    "description": "Test filtres from/to pour les routes /events et /profiles/:id/events",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Liste publique des événements avec filtre",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3333/events?from=2025-06-01&to=2025-12-31",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3333",
+          "path": ["events"],
+          "query": [
+            { "key": "from", "value": "2025-06-01" },
+            { "key": "to", "value": "2025-12-31" }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Événements d’un profil avec filtre",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3333/profiles/1/events?from=2025-01-01&to=2025-12-31",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3333",
+          "path": ["profiles", "1", "events"],
+          "query": [
+            { "key": "from", "value": "2025-01-01" },
+            { "key": "to", "value": "2025-12-31" }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

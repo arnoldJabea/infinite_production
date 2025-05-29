@@ -28,6 +28,7 @@ export default class ProjectsController {
         message: 'La date de fin ne peut pas être antérieure à la date de début.',
       })
     }
+    console.log('auth.user =', auth.user)
 
     const project = await Project.create({
       title: payload.title,
@@ -42,10 +43,12 @@ export default class ProjectsController {
         ? (typeof payload.endDate === 'string'
           ? DateTime.fromISO(payload.endDate)
           : DateTime.fromJSDate(payload.endDate))
-        : undefined,
+        : undefined
     })
+   
 
     return response.created({ project })
+    
   }
 
   async show({ params, auth, response }: HttpContext) {

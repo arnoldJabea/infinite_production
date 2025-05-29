@@ -126,5 +126,78 @@ export default class AdminDashboardController {
         return response.ok(data.reverse())
     }
 
+  
+
+public async eventsInRange({ request, response }: HttpContext) {
+  const from = request.input('from')
+  const to = request.input('to')
+  const artistId = request.input('artistId')
+
+  const eventQuery = Event.query()
+    .preload('project', (projectQuery) => {
+      projectQuery.preload('user')
+    })
+    .orderBy('date', 'asc')
+
+  if (from) {
+    const fromDate = DateTime.fromISO(from).toISODate()
+    if (fromDate) {
+      eventQuery.where('date', '>=', fromDate)
+    }
+  }
+
+  if (to) {
+    const toDate = DateTime.fromISO(to).toISODate()
+    if (toDate) {
+      eventQuery.where('date', '<=', toDate)
+    }
+  }
+
+  if (artistId) {
+    eventQuery.whereHas('project', (q) => {
+      q.where('user_id', artistId)
+    })
+  }
+
+  const events = await eventQuery
+
+  // Regrouper par projet
+  const grouped = events.reduce((acc, event) => {
+    const projectId = event.project.id
+
+    if (!acc[projectId]) {
+      acc[projectId] = {
+        project: {
+          id: event.project.id,
+          title: event.project.title,
+          user: {
+            id: event.project.user.id,
+            email: event.project.user.email,
+            fullName: event.project.user.fullName,
+          },
+        },
+        events: [],
+      }
+    }
+
+    acc[projectId].events.push({
+      id: event.id,
+      title: event.title,
+      location: event.location,
+      date: event.date,
+    })
+
+    return acc
+  }, {} as Record<number, any>)
+
+  return response.ok({
+    from,
+    to,
+    artistId,
+    totalProjects: Object.keys(grouped).length,
+    groupedEvents: Object.values(grouped),
+  })
+}
+
 
 }
