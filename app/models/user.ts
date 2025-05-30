@@ -61,4 +61,5 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare collaborations: ManyToMany<typeof Project>
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
+  mustUpdatePassword: any
 }

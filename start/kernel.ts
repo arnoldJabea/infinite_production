@@ -44,4 +44,5 @@ export const middleware = router.named({
   containerBindings: () => import('#middleware/container_bindings_middleware'),
   ensureRole: () => import('#middleware/ensure_role_middleware'),
   ensureOwnerOrAdmin: () => import('#middleware/ensure_owner_or_admin_middleware'),
+  ensureProfileExists: () => import('#middleware/ensure_profile_exists'),
 })
