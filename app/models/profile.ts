@@ -14,19 +14,25 @@ export default class Profile extends BaseModel {
   declare bio: string
 
   @column()
-  declare website: string
+  declare website: string 
 
   @column()
-  declare socials: Record<string, string>
+  declare socials: Record<string, string> | null
 
   @column()
-  declare profession: string
+  declare profession: string | null
 
   @column()
-  declare style: string
+  declare style: string | null
 
-  @column()
+  @column({ columnName: 'press_kit_path' })
   declare pressKitPath: string | null
+
+  @column()
+  declare phone: string
+
+  @column()
+  declare photoUrl: string
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>

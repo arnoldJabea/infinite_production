@@ -139,3 +139,6 @@ router
 router
   .delete('/news/:id', '#controllers/news_controller.destroy')
   .middleware([middleware.auth(), ensureOwnerOrAdminGeneric(News)])
+
+router.post('/profile/photo', '#controllers/profiles_controller.uploadPhoto')
+  .middleware([middleware.auth()])

@@ -106,4 +106,33 @@ export default class ProfilesController {
 
     return response.ok({ data: results })
   }
+
+  async uploadPhoto({ request, auth, response }: HttpContext) {
+    const file = request.file('file', {
+      size: '2mb',
+      extnames: ['jpg', 'jpeg', 'png'],
+    })
+
+    if (!file) {
+      return response.badRequest({ message: 'Aucun fichier reçu.' })
+    }
+
+    const profile = await auth.user!.related('profile').query().first()
+    if (!profile) return response.notFound({ message: 'Profil inexistant.' })
+
+    const fileName = `${cuid()}.${file.extname}`
+    await file.move(app.makePath('uploads/photos'), { name: fileName })
+
+    profile.photoUrl = `photos/${fileName}`
+    await profile.save()
+
+    const baseUrl = process.env.APP_URL || 'http://localhost:3333'
+    const url = `${baseUrl}/uploads/${profile.photoUrl}`
+
+    return response.ok({
+      message: 'Photo de profil ajoutée.',
+      path: profile.photoUrl,
+      publicUrl: url,
+    })
+  }
 }
